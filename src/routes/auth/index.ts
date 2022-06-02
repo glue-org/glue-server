@@ -1,5 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
+import { isAuthenticated } from "../../utils/middlewares";
 
 const router = Router();
 
@@ -12,11 +13,15 @@ router.get(
 );
 
 router.get("/discord", passport.authenticate("discord"), (req, res) => {
-    res.send(200);
+    res.sendStatus(200);
 });
 
-router.get("/status", (req, res) => {
-    return req.user ? res.send(req.user) : res.sendStatus(401).end();
+router.get("/status", isAuthenticated, (req, res) => {
+    res.sendStatus(200);
+});
+
+router.get("/glue/signature", isAuthenticated, (req, res) => {
+    res.sendStatus(200);
 });
 
 export default router;
