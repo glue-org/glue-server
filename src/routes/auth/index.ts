@@ -7,9 +7,9 @@ const router = Router();
 
 router.get(
     "/discord/redirect",
-    // passport.authenticate("discord"),
+    passport.authenticate("discord"),
     (req, res) => {
-        res.send({ msg: "success" });
+        res.redirect("http://localhost:3001");
     }
 );
 
