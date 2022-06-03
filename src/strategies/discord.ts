@@ -1,11 +1,7 @@
 import { Profile, Strategy } from "passport-discord";
 import passport from "passport";
 import { VerifyCallback } from "passport-oauth2";
-import { config } from "dotenv";
 import { User } from "../database/schemas";
-
-// loading .env file
-config();
 
 passport.serializeUser((user: any, done) => {
     return done(null, user.id);
@@ -51,7 +47,6 @@ passport.use(
                 const savedUser = await newUser.save();
                 return done(null, savedUser);
             } catch (error) {
-                console.log(error);
                 return done(error as any, undefined);
             }
         }
