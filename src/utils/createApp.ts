@@ -25,6 +25,7 @@ export function createApp(): Express {
     // Enable Sessions
     app.use(
         session({
+            name: "glue.sid",
             secret: process.env.SESSION_SECRET!,
             resave: false,
             saveUninitialized: false, // won't set session cookie if session object isnt modified

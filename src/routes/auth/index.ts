@@ -9,7 +9,7 @@ router.get(
     "/discord/redirect",
     passport.authenticate("discord"),
     (req, res) => {
-        res.redirect("http://localhost:3001");
+        res.send({ msg: "authenticated" });
     }
 );
 
