@@ -1,9 +1,6 @@
-import axios from "axios";
 import { Guild, User } from "../../database/schemas";
-import { DISCORD_API_URL } from "../../utils/constants";
 import { backend } from "../../utils/declarations/backend";
 import { Principal } from "@dfinity/principal";
-import { ObjectId } from "mongodb";
 
 export async function savePrincipalWithUserService(
     discordId: string,
@@ -28,7 +25,7 @@ export async function saveUserWithGuildService(
     guildId: string,
     userId: string
 ) {
-    const guildExist = await Guild.exists({ guildId });
+    const guildExist = await Guild.exists({ guildId: guildId });
     if (!guildExist)
         throw "Guild has no profile yet, please contact the server admin";
 
