@@ -32,7 +32,7 @@ const GuildSchema = new Schema<Guild>({
                 type: Schema.Types.String,
                 required: true,
             },
-            users: [{ type: Schema.Types.ObjectId, required: true }],
+            users: [Schema.Types.ObjectId],
         },
     ],
 });
