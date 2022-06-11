@@ -5,7 +5,7 @@ import session from "express-session";
 import passport from "passport";
 import store from "connect-mongo";
 
-// for some reason import doesn't work here
+// initializes the discord passport strategy
 require("../strategies/discord");
 
 export function createApp(): Express {
@@ -17,7 +17,7 @@ export function createApp(): Express {
     // Enable CORS
     app.use(
         cors({
-            origin: ["http://localhost:3001"], // change this to the canister URL
+            origin: [process.env.DISCORD_CALLBACK_URL!], // change this to the canister URL
             credentials: true,
         })
     );
@@ -31,7 +31,7 @@ export function createApp(): Express {
             saveUninitialized: false, // won't set session cookie if session object isnt modified
             cookie: {
                 maxAge: 60000 * 60, // 1 hour
-                domain: "localhost", // share cookies with subdomains
+                // domain: "localhost", // share cookies with subdomains
             },
             store: store.create({ mongoUrl: process.env.MONGO_URL! }),
         })

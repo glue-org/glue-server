@@ -1,25 +1,27 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
-interface User {
+export interface User {
     discordId: string;
     accessToken: string;
     refreshToken: string;
+    principals?: [string];
 }
 
 const UserSchema = new Schema<User>({
     discordId: {
-        type: mongoose.SchemaTypes.String,
+        type: Schema.Types.String,
         required: true,
         unique: true,
     },
     accessToken: {
-        type: mongoose.SchemaTypes.String,
+        type: Schema.Types.String,
         required: true,
     },
     refreshToken: {
-        type: mongoose.SchemaTypes.String,
+        type: Schema.Types.String,
         required: true,
     },
+    principals: [Schema.Types.String],
 });
 
-export default mongoose.model("users", UserSchema);
+export default model<User>("users", UserSchema);

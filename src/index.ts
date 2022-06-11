@@ -1,5 +1,6 @@
 require("dotenv").config();
 import { createApp } from "./utils/createApp";
+// establishes the connection to the DB
 import "./database";
 
 const PORT = process.env.PORT || 3001;

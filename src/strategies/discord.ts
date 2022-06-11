@@ -43,6 +43,7 @@ passport.use(
                     discordId: profile.id,
                     accessToken,
                     refreshToken,
+                    // we don't have any principals yet
                 });
                 const savedUser = await newUser.save();
                 return done(null, savedUser);
