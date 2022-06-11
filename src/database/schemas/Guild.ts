@@ -28,6 +28,10 @@ const GuildSchema = new Schema<Guild>({
                 type: Schema.Types.String,
                 required: true,
             },
+            name: {
+                type: Schema.Types.String,
+                required: true,
+            },
             role: {
                 type: Schema.Types.String,
                 required: true,
