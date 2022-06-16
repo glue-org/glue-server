@@ -32,6 +32,6 @@ export async function verifyMessageController(
         res.send(message);
     } catch (error) {
         console.log(error);
-        res.send(error).status(400);
+        res.status(400).send(error);
     }
 }

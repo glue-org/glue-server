@@ -10,7 +10,7 @@ export async function savePrincipalWithUserService(
         { principals: principal },
         { discordId: 1 }
     );
-    if (user?.discordId !== discordId) {
+    if (user && user?.discordId !== discordId) {
         throw "Principal already connected to a different account";
     }
     let updatedUser = await User.findOneAndUpdate(
