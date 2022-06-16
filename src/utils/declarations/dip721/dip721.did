@@ -1,0 +1,14 @@
+type ManualReply_1 = variant { Ok : vec nat; Err : NftError };
+type NftError = variant {
+  UnauthorizedOperator;
+  SelfTransfer;
+  TokenNotFound;
+  UnauthorizedOwner;
+  SelfApprove;
+  OperatorNotFound;
+  ExistedNFT;
+  OwnerNotFound;
+};
+service : () -> {
+  ownerTokenIdentifiers : (principal) -> (ManualReply_1) query;
+}

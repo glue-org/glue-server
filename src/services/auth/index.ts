@@ -1,6 +1,9 @@
 import { Guild, User } from "../../database/schemas";
 import { backend } from "../../utils/declarations/backend";
+import { createActor as createDip721 } from "../../utils/declarations/dip721";
+import { createActor as createExt } from "../../utils/declarations/ext";
 import { Principal } from "@dfinity/principal";
+import { isErr, principalToAccountId } from "../../utils/utils";
 
 export async function savePrincipalWithUserService(
     discordId: string,
@@ -41,4 +44,31 @@ export async function getMessageFromCanister(principal: string) {
         Principal.fromText(principal)
     );
     return response;
+}
+
+export async function userHastoken(
+    tokenStandard: string,
+    principal: string,
+    canisterId: string
+) {
+    if (tokenStandard === "dip721") {
+        const dip721 = createDip721(canisterId, {
+            agentOptions: { host: "https://ic0.app" },
+        });
+        let result = dip721.ownerTokenIdentifiers(
+            Principal.fromText(principal)
+        );
+        if (isErr(result)) {
+            throw "User has no token";
+        }
+    } else {
+        const ext = createExt(canisterId, {
+            agentOptions: { host: "https://ic0.app" },
+        });
+        let account = principalToAccountId(Principal.fromText(principal));
+        let result = ext.tokens(account);
+        if (isErr(result)) {
+            throw "User has no token";
+        }
+    }
 }

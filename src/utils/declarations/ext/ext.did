@@ -1,0 +1,16 @@
+type CommonError = 
+  variant {
+   InvalidToken: TokenIdentifier;
+   Other: text;
+};
+type AccountIdentifier__1 = text;
+type TokenIndex = nat32;
+type TokenIdentifier = text;
+type Result_1 = 
+ variant {
+   err: CommonError;
+   ok: vec TokenIndex;
+ };
+service : () ->{
+    tokens: (AccountIdentifier__1) -> (Result_1) query;
+}
