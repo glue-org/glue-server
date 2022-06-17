@@ -1,9 +1,10 @@
 import { Guild, User } from "../../database/schemas";
+import { User as UserType } from "../../database/schemas/User";
 import { backend } from "../../utils/declarations/backend";
 import { createActor as createDip721 } from "../../utils/declarations/dip721";
 import { createActor as createExt } from "../../utils/declarations/ext";
 import { Principal } from "@dfinity/principal";
-import { isErr, principalToAccountId } from "../../utils/utils";
+import { fromOk, isErr, principalToAccountId } from "../../utils/utils";
 
 export async function savePrincipalWithUserService(
     discordId: string,
@@ -24,8 +25,9 @@ export async function savePrincipalWithUserService(
     return updatedUser?.id;
 }
 
-export async function saveUserWithGuildService(
+export async function saveUserWithCanisterService(
     guildId: string,
+    canisterId: string,
     userId: string
 ) {
     const guildExist = await Guild.exists({ guildId: guildId });
@@ -33,8 +35,8 @@ export async function saveUserWithGuildService(
         throw "Guild has no profile yet, please contact the server admin";
 
     const updatedGuild = await Guild.findOneAndUpdate(
-        { guildId: guildId },
-        { $addToSet: { "canisters.$[].users": userId } }, // this way we update all elements of the canister array
+        { guildId: guildId, "canisters.canisterId": canisterId },
+        { $addToSet: { "canisters.$.users": userId } }, // this way we update all elements of the canister array
         { new: true }
     );
 }
@@ -46,29 +48,54 @@ export async function getMessageFromCanister(principal: string) {
     return response;
 }
 
-export async function userHastoken(
+export async function verifyOwnership(
+    guildId: string,
+    principal: string,
+    user: UserType
+) {
+    const guildExist = await Guild.exists({ guildId: guildId });
+    if (!guildExist)
+        throw "Guild has no profile yet, please contact the server admin";
+    let canisters = await Guild.findOne({ guildId: guildId }, { canisters: 1 });
+    canisters!["canisters"].forEach(async (canister) => {
+        if (
+            await userHasToken(
+                canister.tokenStandard,
+                principal,
+                canister.canisterId
+            )
+        ) {
+            saveUserWithCanisterService(guildId, canister.canisterId, user.id); // we pass the mongod id
+        }
+    });
+}
+
+export async function userHasToken(
     tokenStandard: string,
     principal: string,
     canisterId: string
-) {
+): Promise<boolean> {
     if (tokenStandard === "dip721") {
         const dip721 = createDip721(canisterId, {
             agentOptions: { host: "https://ic0.app" },
         });
-        let result = dip721.ownerTokenIdentifiers(
+        let result = await dip721.ownerTokenIdentifiers(
             Principal.fromText(principal)
         );
         if (isErr(result)) {
-            throw "User has no token";
+            return false;
         }
+        return true;
     } else {
         const ext = createExt(canisterId, {
             agentOptions: { host: "https://ic0.app" },
         });
         let account = principalToAccountId(Principal.fromText(principal));
-        let result = ext.tokens(account);
-        if (isErr(result)) {
-            throw "User has no token";
+        let result = await ext.tokens(account);
+        if (isErr(result) || fromOk(result).length === 0) {
+            // can be an empty array as well
+            return false;
         }
+        return true;
     }
 }

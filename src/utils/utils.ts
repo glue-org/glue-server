@@ -8,11 +8,16 @@ export const fromNullable = <T>(value: [] | [T]): T | undefined => {
 
 export function isErr(result: any): boolean {
     if (result) {
-        if ("err" in result) {
+        if ("err" in result || "Err" in result) {
             return true;
         }
     }
     return false;
+}
+
+export function fromOk(result: any): any {
+    // get the value from an ok result
+    return result.ok;
 }
 
 // from tipjar (https://github.com/ninegua/tipjar/blob/b68730fa85a6b3d46aa2173ddc9a9b268d1be45b/src/tipjar_assets/src/agent.js#L62)

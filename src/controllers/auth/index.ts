@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import {
     getMessageFromCanister,
     savePrincipalWithUserService,
-    saveUserWithGuildService,
+    verifyOwnership,
 } from "../../services/auth";
 import { fromNullable } from "../../utils/utils";
 import { User } from "../../database/schemas/User";
@@ -26,7 +26,9 @@ export async function verifyMessageController(
             // tries to request a role
             if (message.discordId === user.discordId) {
                 await savePrincipalWithUserService(user.discordId, principal);
-                await saveUserWithGuildService(message.guildId, user.id); // note that we pass the mongoDB id of the user!
+                await verifyOwnership(message.guildId, principal, user);
+            } else {
+                throw "discord ids don't match";
             }
         }
         res.send(message);
