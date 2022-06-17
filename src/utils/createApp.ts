@@ -18,7 +18,7 @@ export function createApp(): Express {
     console.log(process.env.DISCORD_CALLBACK_URL);
     app.use(
         cors({
-            origin: [process.env.DISCORD_CALLBACK_URL!], // change this to the canister URL
+            // origin: [process.env.DISCORD_CALLBACK_URL!], // change this to the canister URL
             credentials: true,
         })
     );
