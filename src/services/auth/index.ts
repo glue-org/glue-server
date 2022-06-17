@@ -5,6 +5,9 @@ import { createActor as createDip721 } from "../../utils/declarations/dip721";
 import { createActor as createExt } from "../../utils/declarations/ext";
 import { Principal } from "@dfinity/principal";
 import { fromOk, isErr, principalToAccountId } from "../../utils/utils";
+import axios from "axios";
+import { DISCORD_API_URL } from "../../utils/constants";
+import { Role } from "../../utils/types";
 
 export async function savePrincipalWithUserService(
     discordId: string,
@@ -65,7 +68,12 @@ export async function verifyOwnership(
                 canister.canisterId
             )
         ) {
-            saveUserWithCanisterService(guildId, canister.canisterId, user.id); // we pass the mongod id
+            await saveUserWithCanisterService(
+                guildId,
+                canister.canisterId,
+                user.id
+            ); // we pass the mongod id
+            await setUserRole(canister.role, guildId, user.discordId);
         }
     });
 }
@@ -97,5 +105,41 @@ export async function userHasToken(
             return false;
         }
         return true;
+    }
+}
+
+export async function setUserRole(
+    role: string,
+    guildId: string,
+    discordId: string
+) {
+    const TOKEN = process.env.DISCORD_TOKEN;
+    try {
+        // get server roles
+        const roleResponse = await axios.get<Role[]>(
+            `${DISCORD_API_URL}/guilds/${guildId}/roles`,
+            {
+                headers: {
+                    Authorization: `Bot ${TOKEN}`,
+                },
+            }
+        );
+        // extract snowflake for role
+        const snowflake = roleResponse.data.filter(
+            (element) => element.name === role
+        )[0]?.id;
+
+        // add role
+        const guildResponse = await axios.put(
+            `${DISCORD_API_URL}/guilds/${guildId}/members/${discordId}/roles/${snowflake}`,
+            {}, //empty data object for put request
+            {
+                headers: {
+                    Authorization: `Bot ${TOKEN}`,
+                },
+            }
+        );
+    } catch (error) {
+        console.error(error);
     }
 }
