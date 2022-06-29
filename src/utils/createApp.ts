@@ -37,7 +37,7 @@ export function createApp(): Express {
                 // https https://developers.google.com/search/blog/2020/01/get-ready-for-new-samesitenone-secure#:~:text=A%20New%20Model%20for%20Cookie%20Security%20and%20Transparency,-Today%2C%20if%20a&text=Developers%20must%20use%20a%20new,be%20accessed%20over%20HTTPS%20connections.
                 // domain: "localhost", // share cookies with subdomains
             },
-            store: store.create({ mongoUrl: process.env.MONGO_URL! }),
+            store: store.create({ mongoUrl: process.env.CONNECT_MONGO_URL! }), // this URL has username and password encoded
         })
     );
 
