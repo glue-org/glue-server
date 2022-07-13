@@ -7,10 +7,10 @@ const router = Router();
 
 router.get(
     "/discord/redirect",
-    passport.authenticate("discord")
-    // (req, res) => {
-    //     res.sendStatus(200);
-    // }
+    passport.authenticate("discord"),
+    (req, res) => {
+        res.sendStatus(200);
+    }
 );
 
 router.get("/status", isAuthenticated, (req, res) => {
