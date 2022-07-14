@@ -31,6 +31,8 @@
         -   the canister id of the `glue` [backend canister](https://github.com/glue-org/glue/tree/main/src/backend), use the local canister id when developing and a canister from the mainnet when deploying to production
     -   HOST
         -   in a node environment we have to specify a host for the agent to work, use the hostname of your local deployment ofthe [glue](https://github.com/glue-org/glue) frontend for development and `https://ic0.app` for production
+    -   NODE_ENV
+        -   `development` for development and `production` for production
 
 ## local deployment
 
