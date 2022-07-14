@@ -23,6 +23,9 @@
     -   MONGO_URL
 
         -   a [connection](https://www.mongodb.com/docs/manual/reference/connection-string/) string to the mongodb database
+        -   if authentication is needed, make sure the connection string has the right format, e.g. `mongodb://myusername:mypassword@127.0.0.1:27017/glue_discord?authSource=admin`
+            -   the `authSource` parameter is necessary to authenticate against the `admin` database
+            -   make sure you avoid special characters in the password as it leads to annoying complications
 
     -   BACKEND_CANISTER_ID
         -   the canister id of the `glue` [backend canister](https://github.com/glue-org/glue/tree/main/src/backend), use the local canister id when developing and a canister from the mainnet when deploying to production
@@ -32,7 +35,8 @@
 ## local deployment
 
 -   run `yarn install` to install all dependencies
--   run `yarn start:dev` to run a development `nodemon` server
+-   make sure the local deployment of [glue](https://github.com/glue-org/glue/) is running
+-   run `yarn start:dev` to run a development `nodemon` server (make sure your node version is correct, run `nvm use` if in doubt)
 
 ## deploying to production
 

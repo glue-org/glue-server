@@ -32,8 +32,9 @@ export function createApp(): Express {
             saveUninitialized: false, // won't set session cookie if session object isnt modified
             cookie: {
                 maxAge: 60000 * 60, // 1 hour
-                sameSite: "none", // this is required for the cookie to be sent
-                secure: true, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#secure
+                sameSite:
+                    process.env.NODE_ENV === "production" ? "none" : "lax", // this is required for the cookie to be sent
+                secure: process.env.NODE_ENV === "production" ? true : false, // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#secure
                 // https https://developers.google.com/search/blog/2020/01/get-ready-for-new-samesitenone-secure#:~:text=A%20New%20Model%20for%20Cookie%20Security%20and%20Transparency,-Today%2C%20if%20a&text=Developers%20must%20use%20a%20new,be%20accessed%20over%20HTTPS%20connections.
                 // domain: "localhost", // share cookies with subdomains
             },
