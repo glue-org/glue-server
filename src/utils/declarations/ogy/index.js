@@ -8,7 +8,7 @@ export { idlFactory } from "./ogy.did.js";
  *
  * @param {string | import("@dfinity/principal").Principal} canisterId Canister ID of Agent
  * @param {{agentOptions?: import("@dfinity/agent").HttpAgentOptions; actorOptions?: import("@dfinity/agent").ActorConfig}} [options]
- * @return {import("@dfinity/agent").ActorSubclass<import("./ext.did.js")._SERVICE>}
+ * @return {import("@dfinity/agent").ActorSubclass<import("./ogy.did.js")._SERVICE>}
  */
 export const createActor = (canisterId, options) => {
     const agent = new HttpAgent({ ...options?.agentOptions });

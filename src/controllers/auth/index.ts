@@ -30,6 +30,8 @@ export async function verifyMessageController(
             } else {
                 throw "discord ids don't match";
             }
+        } else {
+            throw `no discord user associated with principal ${principal}`;
         }
         res.send(message);
     } catch (error) {

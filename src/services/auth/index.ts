@@ -3,6 +3,7 @@ import { User as UserType } from "../../database/schemas/User";
 import { backend } from "../../utils/declarations/backend";
 import { createActor as createDip721 } from "../../utils/declarations/dip721";
 import { createActor as createExt } from "../../utils/declarations/ext";
+import { createActor as createOgy } from "../../utils/declarations/ogy";
 import { Principal } from "@dfinity/principal";
 import { fromOk, isErr, principalToAccountId } from "../../utils/utils";
 import axios from "axios";
@@ -59,8 +60,8 @@ export async function verifyOwnership(
     const guildExist = await Guild.exists({ guildId: guildId });
     if (!guildExist)
         throw "Guild has no profile yet, please contact the server admin";
-    let canisters = await Guild.findOne({ guildId: guildId }, { canisters: 1 });
-    canisters!["canisters"].forEach(async (canister) => {
+    let result = await Guild.findOne({ guildId: guildId }, { canisters: 1 });
+    result!["canisters"].forEach(async (canister) => {
         if (
             await userHasToken(
                 canister.tokenStandard,
@@ -94,14 +95,25 @@ export async function userHasToken(
             return false;
         }
         return true;
-    } else {
+    } else if (tokenStandard === "ext") {
         const ext = createExt(canisterId, {
             agentOptions: { host: "https://ic0.app" },
         });
         let account = principalToAccountId(Principal.fromText(principal));
         let result = await ext.tokens(account);
+        // can be an empty array as well
         if (isErr(result) || fromOk(result).length === 0) {
-            // can be an empty array as well
+            return false;
+        }
+        return true;
+    } else {
+        const ogy = createOgy(canisterId, {
+            agentOptions: { host: "https://ic0.app" },
+        });
+        let result = await ogy.balance_of_nft_origyn({
+            principal: Principal.fromText(principal),
+        });
+        if (isErr(result) || fromOk(result).nfts.length === 0) {
             return false;
         }
         return true;

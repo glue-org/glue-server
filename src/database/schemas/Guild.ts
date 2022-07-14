@@ -5,7 +5,7 @@ interface Guild {
     canisters: [
         {
             canisterId: string;
-            tokenStandard: "ext" | "dip721";
+            tokenStandard: "ext" | "dip721" | "ogy";
             role: string;
             users: [Types.ObjectId];
         }
