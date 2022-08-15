@@ -4,6 +4,8 @@ import { backend } from "../../utils/declarations/backend";
 import { createActor as createDip721 } from "../../utils/declarations/dip721";
 import { createActor as createExt } from "../../utils/declarations/ext";
 import { createActor as createOgy } from "../../utils/declarations/ogy";
+import { createActor as createIcpLedger } from "../../utils/declarations/icp-ledger";
+import { AccountIdentifier } from "@dfinity/nns";
 import { Principal } from "@dfinity/principal";
 import { fromOk, isErr, principalToAccountId } from "../../utils/utils";
 import axios from "axios";
@@ -106,7 +108,7 @@ export async function userHasToken(
             return false;
         }
         return true;
-    } else {
+    } else if (tokenStandard === "ogy") {
         const ogy = createOgy(canisterId, {
             agentOptions: { host: "https://ic0.app" },
         });
@@ -117,7 +119,21 @@ export async function userHasToken(
             return false;
         }
         return true;
+    } else if (tokenStandard === "icp-ledger") {
+        const icpLedger = createIcpLedger(canisterId, {
+            agentOptions: { host: "https://ic0.app" },
+        });
+        let result = await icpLedger.account_balance({
+            account: AccountIdentifier.fromPrincipal({
+                principal: Principal.fromText(principal),
+            }).toNumbers(),
+        });
+        if (result.e8s === 0n) {
+            return false;
+        }
+        return true;
     }
+    return false;
 }
 
 export async function setUserRole(
