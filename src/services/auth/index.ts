@@ -6,6 +6,7 @@ import { createActor as createExt } from "../../utils/declarations/ext";
 import { createActor as createOgy } from "../../utils/declarations/ogy";
 import { createActor as createIcpLedger } from "../../utils/declarations/icp-ledger";
 import { createActor as createCcc } from "../../utils/declarations/ccc";
+import { createActor as createIcrc1 } from "../../utils/declarations/icrc-1";
 import { AccountIdentifier } from "@dfinity/nns";
 import { Principal } from "@dfinity/principal";
 import { fromOk, isErr, principalToAccountId } from "../../utils/utils";
@@ -138,6 +139,18 @@ export async function userHasToken(
             agentOptions: { host: "https://ic0.app" },
         });
         let result = await ccc.balanceOf(Principal.fromText(principal));
+        if (result === 0n) {
+            return false;
+        }
+        return true;
+    } else if (tokenStandard === "icrc-1") {
+        const icrc1 = createIcrc1(canisterId, {
+            agentOptions: { host: "https://ic0.app" },
+        });
+        let result = await icrc1.icrc1_balance_of({
+            owner: Principal.fromText(principal),
+            subaccount: [],
+        });
         if (result === 0n) {
             return false;
         }
