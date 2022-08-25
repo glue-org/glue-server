@@ -7,6 +7,7 @@ import { createActor as createOgy } from "../../utils/declarations/ogy";
 import { createActor as createIcpLedger } from "../../utils/declarations/icp-ledger";
 import { createActor as createCcc } from "../../utils/declarations/ccc";
 import { createActor as createIcrc1 } from "../../utils/declarations/icrc-1";
+import { createActor as createDip20 } from "../../utils/declarations/dip20";
 import { AccountIdentifier } from "@dfinity/nns";
 import { Principal } from "@dfinity/principal";
 import { fromOk, isErr, principalToAccountId } from "../../utils/utils";
@@ -151,6 +152,15 @@ export async function userHasToken(
             owner: Principal.fromText(principal),
             subaccount: [],
         });
+        if (result === 0n) {
+            return false;
+        }
+        return true;
+    } else if (tokenStandard === "dip20") {
+        const dip20 = createDip20(canisterId, {
+            agentOptions: { host: "https://ic0.app" },
+        });
+        let result = await dip20.balanceOf(Principal.fromText(principal));
         if (result === 0n) {
             return false;
         }
