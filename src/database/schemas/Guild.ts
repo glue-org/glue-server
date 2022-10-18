@@ -5,9 +5,18 @@ interface Guild {
     canisters: [
         {
             canisterId: string;
-            tokenStandard: "ext" | "dip721" | "ogy" | "icp-ledger" | "ccc" | "icrc-1" | "dip20";
+            tokenStandard:
+                | "ext"
+                | "dip721"
+                | "ogy"
+                | "icp-ledger"
+                | "ccc"
+                | "icrc-1"
+                | "dip20";
             role: string;
             users: [Types.ObjectId];
+            min?: number;
+            max?: number;
         }
     ];
 }
@@ -37,6 +46,12 @@ const GuildSchema = new Schema<Guild>({
                 required: true,
             },
             users: [Schema.Types.ObjectId],
+            min: {
+                type: Schema.Types.Number,
+            },
+            max: {
+                type: Schema.Types.Number,
+            },
         },
     ],
 });

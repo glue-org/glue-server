@@ -71,7 +71,9 @@ export async function verifyOwnership(
             await userHasToken(
                 canister.tokenStandard,
                 principal,
-                canister.canisterId
+                canister.canisterId,
+                canister.min, // if the property doesnt exist (like in legacy entries), this will just return `undefined`
+                canister.max
             )
         ) {
             await saveUserWithCanisterService(
@@ -87,19 +89,32 @@ export async function verifyOwnership(
 export async function userHasToken(
     tokenStandard: string,
     principal: string,
-    canisterId: string
+    canisterId: string,
+    min: number | undefined,
+    max: number | undefined
 ): Promise<boolean> {
     if (tokenStandard === "dip721") {
         const dip721 = createDip721(canisterId, {
             agentOptions: { host: "https://ic0.app" },
         });
+        // because this is a rust implenetation it returns `Ok` instead of `ok`
         let result = await dip721.ownerTokenIdentifiers(
             Principal.fromText(principal)
         );
         if (isErr(result)) {
             return false;
+        } else if ("Ok" in result) {
+            if (min && max) {
+                if (min <= result.Ok.length && result.Ok.length <= max)
+                    return true;
+            } else if (min) {
+                if (min <= result.Ok.length) return true;
+            } else if (max) {
+                if (result.Ok.length <= max) return true;
+            } else {
+                if (result.Ok.length != 0) return true;
+            }
         }
-        return true;
     } else if (tokenStandard === "ext") {
         const ext = createExt(canisterId, {
             agentOptions: { host: "https://ic0.app" },
@@ -107,10 +122,21 @@ export async function userHasToken(
         let account = principalToAccountId(Principal.fromText(principal));
         let result = await ext.tokens(account);
         // can be an empty array as well
-        if (isErr(result) || fromOk(result).length === 0) {
+        if (isErr(result)) {
             return false;
+        } else if ("ok" in result) {
+            if (min && max) {
+                if (min <= result.ok.length && result.ok.length <= max)
+                    return true;
+            } else if (min) {
+                if (min <= result.ok.length) return true;
+            } else if (max) {
+                if (result.ok.length <= max) return true;
+            } else {
+                // just becaue the response is ok doesn't mean the user actually owns nfts
+                if (result.ok.length != 0) return true;
+            }
         }
-        return true;
     } else if (tokenStandard === "ogy") {
         const ogy = createOgy(canisterId, {
             agentOptions: { host: "https://ic0.app" },
@@ -118,10 +144,24 @@ export async function userHasToken(
         let result = await ogy.balance_of_nft_origyn({
             principal: Principal.fromText(principal),
         });
-        if (isErr(result) || fromOk(result).nfts.length === 0) {
+        if (isErr(result)) {
             return false;
+        } else if ("ok" in result) {
+            if (min && max) {
+                if (
+                    min <= result.ok.nfts.length &&
+                    result.ok.nfts.length <= max
+                )
+                    return true;
+            } else if (min) {
+                if (min <= result.ok.nfts.length) return true;
+            } else if (max) {
+                if (result.ok.nfts.length <= max) return true;
+            } else {
+                // just becaue the response is ok doesn't mean the user actually owns nfts
+                if (result.ok.nfts.length != 0) return true;
+            }
         }
-        return true;
     } else if (tokenStandard === "icp-ledger") {
         const icpLedger = createIcpLedger(canisterId, {
             agentOptions: { host: "https://ic0.app" },
@@ -134,7 +174,16 @@ export async function userHasToken(
         if (result.e8s === 0n) {
             return false;
         }
-        return true;
+        if (min && max) {
+            if (min <= result.e8s && result.e8s <= max) return true;
+        } else if (min) {
+            if (min <= result.e8s) return true;
+        } else if (max) {
+            if (result.e8s <= max) return true;
+        } else {
+            // we already know the response is not 0 so we can immediately return true
+            return true;
+        }
     } else if (tokenStandard === "ccc") {
         const ccc = createCcc(canisterId, {
             agentOptions: { host: "https://ic0.app" },
@@ -143,7 +192,15 @@ export async function userHasToken(
         if (result === 0n) {
             return false;
         }
-        return true;
+        if (min && max) {
+            if (min <= result && result <= max) return true;
+        } else if (min) {
+            if (min <= result) return true;
+        } else if (max) {
+            if (result <= max) return true;
+        } else {
+            return true;
+        }
     } else if (tokenStandard === "icrc-1") {
         const icrc1 = createIcrc1(canisterId, {
             agentOptions: { host: "https://ic0.app" },
@@ -155,7 +212,15 @@ export async function userHasToken(
         if (result === 0n) {
             return false;
         }
-        return true;
+        if (min && max) {
+            if (min <= result && result <= max) return true;
+        } else if (min) {
+            if (min <= result) return true;
+        } else if (max) {
+            if (result <= max) return true;
+        } else {
+            return true;
+        }
     } else if (tokenStandard === "dip20") {
         const dip20 = createDip20(canisterId, {
             agentOptions: { host: "https://ic0.app" },
@@ -164,7 +229,15 @@ export async function userHasToken(
         if (result === 0n) {
             return false;
         }
-        return true;
+        if (min && max) {
+            if (min <= result && result <= max) return true;
+        } else if (min) {
+            if (min <= result) return true;
+        } else if (max) {
+            if (result <= max) return true;
+        } else {
+            return true;
+        }
     }
     return false;
 }
